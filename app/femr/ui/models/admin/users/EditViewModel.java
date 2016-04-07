@@ -46,15 +46,18 @@ public class EditViewModel {
             errors.add(new ValidationError("firstName", "first name is a required field"));
         if (StringUtils.isNullOrWhiteSpace(email))
             errors.add(new ValidationError("email", "email is a required field"));
-        if (!newPassword.equals(newPasswordVerify))
-            errors.add(new ValidationError("newPassword", "passwords do not match"));
-        else if(newPassword.isEmpty() || newPasswordVerify.isEmpty())
-            errors.add(new ValidationError("newPassword", "password field is empty"));
-        else {
-            if(newPassword.length() < 6 || !hasUppercase.matcher(newPassword).find()
-                    || !hasNumber.matcher(newPassword).find())      //AJ Saclayan Password Constraints
-                errors.add(new ValidationError("newPassword",
-                        "password must have at least 6 characters with at least one upper case letter and number"));
+        if(newPassword.length() > 0 || newPasswordVerify.length() > 0) {
+            if (!newPassword.equals(newPasswordVerify))
+                errors.add(new ValidationError("newPassword", "passwords do not match"));
+            // This else if block is never reached. I was unsure of whether to remove it or not after issue FEMR-158
+            else if (newPassword.isEmpty() || newPasswordVerify.isEmpty())
+                errors.add(new ValidationError("newPassword", "password field is empty"));
+            else {
+                if (newPassword.length() < 6 || !hasUppercase.matcher(newPassword).find()
+                        || !hasNumber.matcher(newPassword).find())      //AJ Saclayan Password Constraints
+                    errors.add(new ValidationError("newPassword",
+                            "password must have at least 6 characters with at least one upper case letter and number"));
+            }
         }
         if (roles == null || roles.size() < 1)
             errors.add(new ValidationError("roles", "a user needs at least one role"));
