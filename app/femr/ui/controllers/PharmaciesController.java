@@ -163,8 +163,6 @@ public class PharmaciesController extends Controller {
         // If form errors exist
         EditViewModelPost createViewModelPost = populatedViewModelPostForm.bindFromRequest().get();
 
-        // @TODO -- Do validation on  the counseled flag
-
         //get patient encounter
         ServiceResponse<PatientEncounterItem> patientEncounterItemServiceResponse = searchService.retrieveRecentPatientEncounterItemByPatientId(id);
         if (patientEncounterItemServiceResponse.hasErrors()) {
@@ -185,6 +183,7 @@ public class PharmaciesController extends Controller {
             isCounseled = true;
         }
 
+        createViewModelPost.validate();
 
         // Map<id of the new prescription, id of the old prescription>
         Map<Integer, Integer> prescriptionsToReplace = new HashMap<>();
