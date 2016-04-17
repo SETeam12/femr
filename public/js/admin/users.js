@@ -82,13 +82,16 @@ var createAndEditUsers = {
 
 var createUsers = {
     elements: {
-        password: $("#password")
+        password: $("#password"),
+        passwordVerify: $("#passwordVerify")    //add passwordVerify variable to elements
     },
     validateRolesAndPassword: function () {
         var pass = true;
         // Adding password constraint!
         var passwordErrors = "";
         var password = $.trim(document.forms["createForm"]["password"].value);
+        var passwordVerify = $.trim(document.forms["createForm"]["passwordVerify"].value);  //get passwordVerify from the form
+
         if(password.length < 6){
            pass = false;
         }
@@ -116,8 +119,15 @@ var createUsers = {
             createUsers.elements.password.next(".errors").text("");
         }
 
-        //validate roles
-        var isARoleChecked = false;
+        //validation for passwordVerify here
+        if ((!(password === passwordVerify)) || (passwordVerify === ""))//check to see if passwordVerify matches password
+        {
+            createUsers.elements.passwordVerify.next(".errors").text("both passwords must match");//if not, display an error message on the page
+            pass === false;
+        }
+        
+//validate roles
+    var isARoleChecked = false;
         $.each(document.forms["createForm"].elements["roles[]"], function () {
             if ($(this).is(':checked')) {
                 isARoleChecked = true;
