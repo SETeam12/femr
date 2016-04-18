@@ -6,71 +6,112 @@
 
     @additionalStyles = {
         <link rel="stylesheet" href="@routes.Assets.versioned("css/admin/users.css")">
+@*        <link rel="stylesheet" type="text/css" href="femr/public/css/libraries/simplePagination.css"/>        *@
     }
 
     @additionalScripts = {
         <script type="text/javascript" src="@routes.Assets.versioned("js/admin/users.js")"></script>
+@*        <script type="text/javascript" src="path_to/jquery.js"></script>          *@
+@*        <script type="text/javascript" src="femr\public\js\research\jquery.simplePagination.js"></script>     *@
     }
+
+
+
+<object>
+<param name="code" value="UsersApplet.class">
+<comment>
+    <embed code="UsersApplet.class"
+    type="application/x-java-applet;version=1.6">
+        <noembed>
+            No Java Support.
+        </noembed>
+    </embed>
+</comment>
+    </object>
+
+
+
 
 @admin("Users", currentUser, styles = additionalStyles, scripts = additionalScripts) {
 
     <a href="@UsersController.createGet()" class="fButton fOtherButton fAdminButton userBtns"><span class="glyphicon glyphicon-plus-sign"></span>
         Add User</a>
-
+    @*
     <table id="userTable">
-        <thead>
-            <tr>
-                <th>Edit</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>About</th>
-                <th>Role</th>
-                <th>Last Login</th>
-                <th>Toggle</th>
-            </tr>
-        </thead>
-        <tbody>
+    <thead>
+    <tr>
+    <th>Edit</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Email</th>
+    <th>About</th>
+    <th>Role</th>
+    <th>Last Login</th>
+    <th>Toggle</th>
+    </tr>
+    </thead>
+    <tbody>
 
-@* TODO add pagination here *@
-        @for(y <- 1 to viewModelGet.getUsers.size) {
-            <tr>
-                <td>
-                @helper.form(action = UsersController.editGet(viewModelGet.getUser(y - 1).getId)) {
-                    @if(viewModelGet.getUser(y - 1).getEmail != "admin") {
-                        <button type="submit" class="btn btn-default editBtn">@y</button>
-                    }
-                }
+    <div id="pagination"></div>
+    <script>
 
-                </td>
-                <td>@viewModelGet.getUser(y - 1).getFirstName</td>
-                <td>@viewModelGet.getUser(y - 1).getLastName</td>
-                <td>@viewModelGet.getUser(y - 1).getEmail</td>
-                <td>@viewModelGet.getUser(y - 1).getNotes</td>
-                <td>
-                @for(role <- 0 to viewModelGet.getUser(y - 1).getRoles.size - 1) {
-                    <ul>
-                        <li>@viewModelGet.getUser(y - 1).getRoles.get(role)</li>
-                    </ul>
-                }
-                </td>
-                <td>@viewModelGet.getUser(y - 1).getLastLoginDate</td>
-                <td class="text-center">
-                @defining(viewModelGet.getUser(y - 1)) { user =>
-                    @if(user.getEmail != "admin") {
-                        @toggleButton(!user.isDeleted, user.getId)
-                    }
+    $('#pagination').pagination({
+    items: viewModelGet.getUsers.size,
+    itemsOnPage: 20,
+    hrefTextPrefix : '#page-', //this prefix will be added to url when you click each page button
+    currentPage:1, //default selected page is 1st button
+    cssStyle: 'light-theme' , // you can pick 'dark-theme' ( see the css code inside simplePagination.css )
+    onPageClick:function(pageNumber, event){
+    //do something callback here when each page button is clicked
+    }
+    });
 
-                }
+    </script>
 
-                </td>
-            </tr>
-        }
-        </tbody>
+    @for(y <- 1 to viewModelGet.getUsers.size) {
+    <tr>
+    <td>
+    @helper.form(action = UsersController.editGet(viewModelGet.getUser(y - 1).getId)) {
+    @if(viewModelGet.getUser(y - 1).getEmail != "admin") {
+    <button type="submit" class="btn btn-default editBtn">@y</button>
+    }
+    }
+
+    </td>
+    <td>@viewModelGet.getUser(y - 1).getFirstName</td>
+    <td>@viewModelGet.getUser(y - 1).getLastName</td>
+    <td>@viewModelGet.getUser(y - 1).getEmail</td>
+    <td>@viewModelGet.getUser(y - 1).getNotes</td>
+    <td>
+    @for(role <- 0 to viewModelGet.getUser(y - 1).getRoles.size - 1) {
+    <ul>
+    <li>@viewModelGet.getUser(y - 1).getRoles.get(role)</li>
+    </ul>
+    }
+    </td>
+    <td>@viewModelGet.getUser(y - 1).getLastLoginDate</td>
+    <td class="text-center">
+    @defining(viewModelGet.getUser(y - 1)) { user =>
+    @if(user.getEmail != "admin") {
+    @toggleButton(!user.isDeleted, user.getId)
+    }
+
+    }
+
+    </td>
+    </tr>
+    }
+
+    </tbody>
     </table>
+
     <div id="editDialog" title="Edit User">
         <div id="editPartial">
+
+    *@
             @*load partial view for editing a user via admin.js*@
+    @*
         </div>
     </div>
+*@
 }
