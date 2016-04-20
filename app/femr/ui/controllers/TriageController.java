@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import java.util.Date;
+import java.util.Calendar;
+
 @Security.Authenticated(FEMRAuthenticated.class)
 @AllowedRoles({Roles.PHYSICIAN, Roles.PHARMACIST, Roles.NURSE})
 public class TriageController extends Controller {
@@ -158,10 +161,57 @@ public class TriageController extends Controller {
         //or get current patient for new encounter
         ServiceResponse<PatientItem> patientServiceResponse;
         PatientItem patientItem;
-        if (id == 0) {
+        if (id == 0) {  //if no patient information is available (new patient), create a patient
+            //check to see if non-conflicting age information has been entered
+            System.out.printf("\nPatient age: %s", viewModel.getAge());
+            System.out.printf("\nPatient age classification: ||%s||", viewModel.getAgeClassification());
+            Boolean error = false;
+
+            try {
+                if (viewModel.getAge() != null) {
+                    Date age = viewModel.getAge();
+                    Calendar currentDate = Calendar.getInstance();  //current date
+                    Calendar calendar = Calendar.getInstance(); //age of the patient (for comparisons)
+                    calendar.setTime(age);
+                    int year = calendar.get(Calendar.YEAR);
+                    int month = calendar.get(Calendar.MONTH)+1;   //January = 0
+                    int months = 0; //age in months
+                    months += year * 12;
+                    months += (month + 1);
+                    int currentYear = currentDate.get(Calendar.YEAR);
+                    int currentMonth = currentDate.get(Calendar.MONTH)+1; //Calendar.MONTH begins at 0
+                    int currentMonths = 0;
+                    currentMonths += currentYear * 12;
+                    currentMonths += currentMonth;
+                    int monthDifference = currentMonths - months + 1;   //added 1 to correct monthDifference being off by 1
+
+                    if ((monthDifference >= 0 && monthDifference < 24) && !(viewModel.getAgeClassification().equals("infant")))  //infant classification
+                        error = true;
+                    else if ((monthDifference >= 24 && monthDifference < 156) && !(viewModel.getAgeClassification().equals("child")))  //child classification
+                        error = true;
+                    else if ((monthDifference >= 156 && monthDifference < 216) && !(viewModel.getAgeClassification().equals("teen")))  //teen classification
+                        error = true;
+                    else if ((monthDifference >= 216 && monthDifference < 780) && !(viewModel.getAgeClassification().equals("adult")))  //adult classification
+                        error = true;
+                    else // (monthDifference >= 780)  elder classification
+                    {
+                        if((monthDifference >= 780 && !(viewModel.getAgeClassification().equals("elder"))))
+                            error = true;
+                    }
+
+                }
+            }
+            catch(InputMismatchException e)
+            {
+                e.printStackTrace();
+            }
             patientItem = populatePatientItem(viewModel, currentUser);
             patientServiceResponse = patientService.createPatient(patientItem);
-        } else {
+            if (error)
+                patientServiceResponse.addError("Age", "Age and Age Classification must match");
+        }
+
+         else {
             patientServiceResponse = patientService.updateSex(id, viewModel.getSex());
         }
         if (patientServiceResponse.hasErrors()) {
