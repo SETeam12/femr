@@ -110,9 +110,8 @@ public class MedicalController extends Controller {
     }
 
     public Result editGet(int patientId) {
-
+//        System.out.print("\nMedicalController.editGet called here.");
         CurrentUser currentUserSession = sessionService.retrieveCurrentUserSession();
-
         EditViewModelGet viewModelGet = new EditViewModelGet();
 
         //Get Patient Encounter
@@ -161,7 +160,18 @@ public class MedicalController extends Controller {
 
             throw new RuntimeException();
         }
-        viewModelGet.setProblemItems(problemItemServiceResponse.getResponseObject());
+        viewModelGet.setProblemItems(problemItemServiceResponse.getResponseObject());   //contains entire list of problems
+ //       for(int i=0;i<problemItemServiceResponse.getResponseObject().size(); ++i)
+ //       {
+ //           System.out.printf("\nMedicalController problemItemServiceResponse.getResponseObject: %s", problemItemServiceResponse.getResponseObject().toString());
+ //       }
+
+        //get problem edit list for this encounter
+//        ServiceResponse<List<EncounterChangeItem>> encounterChangeServiceResponse = encounterService.retrieveEncounterChangeItems(patientEncounter.getId());
+//        if (problemItemServiceResponse.hasErrors()) {
+//            throw new RuntimeException();
+//        }
+//        viewModelGet.setPatientEncounterItems(encounterChangeServiceResponse.getResponseObject());
 
         //get vitals
         ServiceResponse<VitalMultiMap> vitalMapResponse = vitalService.retrieveVitalMultiMap(patientEncounter.getId());
@@ -231,8 +241,10 @@ public class MedicalController extends Controller {
 
         //Alaa Serhan
         VitalMultiMap vitalMultiMap = vitalMapResponse.getResponseObject();
-
-        return ok(edit.render(currentUserSession, vitalMultiMap, viewModelGet));
+        System.out.printf("\neditGet sessionService.retrieveCurrentUserSession: %s", sessionService.retrieveCurrentUserSession().toString());
+//        for(int i=0;i<viewModelGet.getProblemItems().size(); ++i)
+//            System.out.printf("\nLine 238 editGet getProblemItems %s", viewModelGet.getProblemItems().get(i).getName());
+        return ok(edit.render(currentUserSession, vitalMultiMap, viewModelGet)); //places information on the page
     }
 
     /**
@@ -251,16 +263,43 @@ public class MedicalController extends Controller {
             throw new RuntimeException();
         }
         List<MedicationAdministrationItem> items = medicationAdministrationItemServiceResponse.getResponseObject();
-
         return ok( prescriptionRow.render( items, index, null ) );
     }
 
-    public Result editPost(int patientId) {
+    public Result editPost(int patientId) { //Only gets the new problems
 
-        CurrentUser currentUserSession = sessionService.retrieveCurrentUserSession();
+        String encounterChangeLog = "";
 
-        EditViewModelPost viewModelPost = createViewModelPostForm.bindFromRequest().get();
+        //Get a copy of the old ProblemItem list to compare with the new one that is grabbed from the form.
+        //The following 14 lines are copied from method editGet (above)
+        EditViewModelGet viewModelGet = new EditViewModelGet();
+        PatientEncounterItem patientEncounter;
+        ServiceResponse<PatientEncounterItem> patientEncounterItemServiceResponse = searchService.retrieveRecentPatientEncounterItemByPatientId(patientId);
+        if (patientEncounterItemServiceResponse.hasErrors()) {
 
+            throw new RuntimeException();
+        }
+        patientEncounter = patientEncounterItemServiceResponse.getResponseObject();
+        viewModelGet.setPatientEncounterItem(patientEncounter);
+        ServiceResponse<List<ProblemItem>> problemItemServiceResponse = encounterService.retrieveProblemItems(patientEncounter.getId());
+        if (problemItemServiceResponse.hasErrors()) {
+
+            throw new RuntimeException();
+        }
+        viewModelGet.setProblemItems(problemItemServiceResponse.getResponseObject());   //contains entire list of problems
+        List<ProblemItem> originalProblemItems = viewModelGet.getProblemItems();
+//        for(int i=0;i<viewModelGet.getProblemItems().size(); ++i)
+//            System.out.printf("\nMedicalController-editPost viewModelGET.getProblemItems(%d): %s",i, viewModelGet.getProblemItems().get(i).getName());
+
+        CurrentUser currentUserSession = sessionService.retrieveCurrentUserSession(); //no problems here
+//        System.out.printf("\n editPost sessionService.retrieveCurrentUserSession: %s", sessionService.retrieveCurrentUserSession().toString());
+        EditViewModelPost viewModelPost = createViewModelPostForm.bindFromRequest().get();  //gets no old problems. YET.
+//        System.out.printf("\nMedicalController-editPost createViewModelPostForm: %s", createViewModelPostForm.bindFromRequest().toString());
+//        System.out.printf("\nMedicalController-editPost viewModelPost.getProblems[0].getName: %s", viewModelPost.getProblems().get(0).getName());
+
+//        Map<String,String> problemBinding = new HashMap();
+//        problemBinding.put();
+//        EditViewModelPost ProblemModelPost = createViewModelPostForm.bind().get();    //for retrieving all problem fields from the page. ALTERNATIVE: change request to retieve all items insted of just new ones
         //get current patient
         ServiceResponse<PatientItem> patientItemServiceResponse = searchService.retrievePatientItemByPatientId(patientId);
         if (patientItemServiceResponse.hasErrors()) {
@@ -276,16 +315,74 @@ public class MedicalController extends Controller {
         PatientEncounterItem patientEncounterItem = patientEncounterServiceResponse.getResponseObject();
         patientEncounterItem = encounterService.checkPatientInToMedical(patientEncounterItem.getId(), currentUserSession.getId()).getResponseObject();
 
+
+        //find changed problems
+        String problemChanges = "";
+        List<ProblemItem> oldProblemList = viewModelGet.getProblemItems();
+/*      FOR USE WHEN THE ENTIRE LIST OF PROBLEMS CAN BE RECEIVED FROM THE FORM INSTEAD OF JUST THE NEW PROBLEMS
+        List<ProblemItem> receivedProblemList = ;
+        boolean addedProblems = false;
+//        boolean removedProblems = false;
+//        boolean changesNeeded = false;
+
+        //track changed problems in string: change (For EncounterChangeItem: changes)
+        if(oldProblemList.size() <= receivedProblemList.size()) {
+            addedProblems = true;
+            changesNeeded = true;
+        }
+        if(oldProblemList.size() >= receivedProblemList.size()) {
+            removedProblems = true;
+            changesNeeded = true;
+        }
+        if(!removedProblems) {
+            for (int i = 0; i < oldProblemList.size(); ++i) {
+                if (oldProblemList.get(i) != receivedProblemList.get(i)) {
+                    problemChanges += "\nProblemItem " + i + " changed from " + oldProblemList.get(i).getName() + " to " + receivedProblemList.get(i).getName();
+                    changesNeeded = true;
+                }
+            }
+        }
+
+        //find added problems. For EncounterChangeItem: changes
+        if(addedProblems)   {
+            for(int i=oldProblemList.size(); i<receivedProblemList.size(); ++i)
+                problemChanges += "\nProblemItem " + i + " added. Value: " + receivedProblemList.get(i).getName();
+        }
+        //set changed problems (remove from the database and re-enter? do backwards?
+        //if something has changed, remove all fields for this encounter from the database and re-enter the entire list of ProblemItems
+        if(changesNeeded)
+        {
+
+        }
+
+*/
+
+//MARKER this is where the list of *new* medical problems is put into the database
         //get and save problems
         List<String> problemList = new ArrayList<>();
+        List<String> changeList = new ArrayList<>();
+//SYSTEM CALLS FOR SEEING THE LIST OF PROBLEMS RECEIVED FROM THE FORM
+//            System.out.printf("\nproblemList declared here. Size: %d ",problemList.size());
+//        System.out.printf("\nviewModelPost.getProblems(): Size: %d ",viewModelPost.getProblems().size());
+//System.out.printf("\nViewModelPost contents: %s", viewModelPost.toString());
+
         for (ProblemItem pi : viewModelPost.getProblems()) {
             if (StringUtils.isNotNullOrWhiteSpace(pi.getName())) {
                 problemList.add(pi.getName());
+//                System.out.printf("\nMedicalController Line 372: problemList item name: %s", pi.getName());
+            }
+
+            //REMOVE THIS LOOP WHEN ABLE TO GET THE ENTIRE LIST OF PROBLEMS FROM THE FORM INSTEAD OF JUST THE ADDED ONES
+            if (StringUtils.isNotNullOrWhiteSpace(pi.getName())) {
+                problemChanges += "\nProblemItem added. Value: " + pi.getName();
+                changeList.add(problemChanges);
             }
         }
         if (problemList.size() > 0) {
-            encounterService.createProblems(problemList, patientEncounterItem.getId(), currentUserSession.getId());
+            encounterService.editProblems(problemList, patientEncounterItem.getId(), currentUserSession.getId());
+            encounterService.addEncounterChanges(problemList, patientEncounterItem.getId(), currentUserSession.getId());
         }
+
 
         //get tab fields that do not have a related chief complaint and put them into a nice map
         Map<String, String> tabFieldItemsWithNoRelatedChiefComplaint = new HashMap<>();
@@ -517,7 +614,7 @@ public class MedicalController extends Controller {
         if (viewModel.getWeeksPregnant() != null) {
             newVitals.put("weeksPregnant", viewModel.getWeeksPregnant());
         }
-        
+
 
         return newVitals;
     }

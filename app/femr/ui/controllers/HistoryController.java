@@ -255,6 +255,7 @@ public class HistoryController extends Controller {
      */
     public Result updateEncounterPost(int encounterId) {
 
+        System.out.print("\nUpdateEncounterPost called here");
         CurrentUser currentUser = sessionService.retrieveCurrentUserSession();
 
         //get POST data
@@ -290,6 +291,7 @@ public class HistoryController extends Controller {
      * Gets the partial view that shows the history of tab field items. Called from AJAX.
      */
     public Result listTabFieldHistoryGet(int encounterID) {
+        System.out.print("\nlistTabFieldHistoryGet called here");
 
         //Populate model with request data that was changed
         fieldValueViewModel fields = fieldValueViewModelForm.bindFromRequest().get();

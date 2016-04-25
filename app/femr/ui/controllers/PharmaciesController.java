@@ -157,7 +157,7 @@ public class PharmaciesController extends Controller {
     }
 
     public Result editPost(int id) {
-
+        System.out.print("\nPharmaciesController editPost called here");
         CurrentUser currentUserSession = sessionService.retrieveCurrentUserSession();
 
         // If form errors exist

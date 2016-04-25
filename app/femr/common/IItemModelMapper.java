@@ -154,6 +154,17 @@ public interface IItemModelMapper {
     ProblemItem createProblemItem(String name);
 
     /**
+     * Generate and provide an instance of EncounterChangeItem.
+     *
+     * @param changes       changes in the EncounterChangeItem, not null
+     * @param encounterID   the encounter that was changed, not null
+     * @param userID        user who made the change to the encounter, not null
+     * @return a new EncounterChangeItem or null if processing fails
+     */
+    //  CONFIGURATIONS ARE SCREWED UP
+//    EncounterChangeItem createEncounterChangeItem(String changes, Integer encounterID, Integer userID);
+
+    /**
      * Generate and provide an instance of SettingItem.
      *
      * @param systemSettings a list of all system settings, not null

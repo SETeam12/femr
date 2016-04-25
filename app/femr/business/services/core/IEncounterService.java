@@ -23,6 +23,8 @@ import femr.common.models.*;
 import femr.data.models.core.IPatientEncounter;
 import java.util.List;
 import java.util.Map;
+import femr.util.calculations.dateUtils;
+
 
 public interface IEncounterService {
 
@@ -98,7 +100,7 @@ public interface IEncounterService {
      * @return a service response that contains a list of ProblemItems representing the problems that were created
      * and/or errors if they exist.
      */
-    ServiceResponse<List<ProblemItem>> createProblems(List<String> problemValues, int encounterId, int userId);
+    ServiceResponse<List<ProblemItem>> editProblems(List<String> problemValues, int encounterId, int userId); //previously named createProblems
 
     /**
      * Retrieves all problems.
@@ -108,6 +110,26 @@ public interface IEncounterService {
      * and/or errors if they exist.
      */
     ServiceResponse<List<ProblemItem>> retrieveProblemItems(int encounterId);
+
+    /**
+     * Create a list of changes made to problems.
+     *
+     * @param encounterChangeValues each change done to the problems TODO: filter out empty/null values
+     * @param encounterId id of the current encounter, not null
+     * @param userId id of the user changing the problems, not null
+     * @return a service response that contains a list of ProblemItems representing the problems that were created
+     * and/or errors if they exist.
+     */
+    ServiceResponse<List<EncounterChangeItem>> addEncounterChanges(List<String> encounterChangeValues, int encounterId, int userId); //previously named createProblems
+
+    /**
+     * Retrieves all changes made to problems.
+     *
+     * @param encounterId id of the encounter, not null
+     * @return a service response that contains a list of ProblemItems that exist
+     * and/or errors if they exist.
+     */
+    ServiceResponse<List<EncounterChangeItem>> retrieveEncounterChangeItems(int encounterId,  int userID);
 
     /**
      * Marks that a patient was screened for diabetes during an encounter

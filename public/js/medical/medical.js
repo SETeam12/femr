@@ -1,38 +1,46 @@
 var problemFeature = {
     allProblems: $('.newProblems, .oldProblems'),
-    newProblems: $('input[name].newProblems'),
+    newProblems: $('input[name].oldProblems,input[name].newProblems'),
+ //   newProblems: $('input[name].newProblems'),
     refreshSelectors: function () {
         problemFeature.allProblems = $(problemFeature.allProblems.selector);
         problemFeature.newProblems = $(problemFeature.newProblems.selector);
     },
     getNumberOfNonReadonlyProblemFields: function () {
         problemFeature.refreshSelectors();
-        return problemFeature.newProblems.length;
+        return problemFeature.newProblems.length;   //TODO possibly revert changes: allproblems was newProblems
     },
     addProblemField: function () {
         var problemIndex = problemFeature.getNumberOfNonReadonlyProblemFields();
         $('.problem')
             .parent()
             .append("<div class='problem'>" +
-            "<input name='problems[" + problemIndex + "].name' type='text' class='form-control input-sm newProblems'/>" +
-            "</div>");
+                "<input name='problems[" + problemIndex + "].name' type='text' class='form-control input-sm newProblems'/>" +
+                "</div>");
 
         var problemInputElement = $("[name='problems[" + problemIndex + "].name'");
         //data for typeahead already exists on the page from loading the diagnoses input box
         typeaheadFeature.initalizeTypeAhead($(problemInputElement), 'diagnoses', true, true);
         $(problemInputElement).focus();
     },
-    removeProblemField: function () {
+    removeProblemField: function () {   //removes both new and old fields now
         problemFeature.refreshSelectors();
-        var lastProblem = $(problemFeature.newProblems).last();
-        if ($(problemFeature.newProblems).size() > 1) {
-            if (!$(lastProblem).is('[readonly]')) {
+        var lastProblem = $(problemFeature.allProblems).last();
+        if ($(problemFeature.allProblems).size() > 1) {
+            if(problemFeature.newProblems.size >1)
+            {
+//            if (!$(lastProblem).is('[readonly]')) {
                 $(lastProblem).parent().parent().remove();
+        }
+            else
+            {
+                $(lastProblem).parent().remove();
             }
+ //           }
         } else {
-            if (!$(lastProblem).is('[readonly]')) {
+//            if (!$(lastProblem).is('[readonly]')) {
                 $(lastProblem).val('');
-            }
+//            }
         }
     }
 };
@@ -75,20 +83,20 @@ var prescriptionFeature = {
                 minLength: 0,
                 source: prescriptionFeature.medicationTypeaheadMatcher(prescriptionFeature.medicationTypeaheadData),
                 templates: {
-                //    suggestion: Handlebars.compile("<div>{{value}} {{#each ingredients}}<div class='medication_ingredient'>{{name}} {{value}}{{unit}}</div>{{/each}}</div>")
+                    //    suggestion: Handlebars.compile("<div>{{value}} {{#each ingredients}}<div class='medication_ingredient'>{{name}} {{value}}{{unit}}</div>{{/each}}</div>")
                 }
             }).on('typeahead:selected', function(event, item) {
-                // triggered when an item is selected from the dropdown list in autocompleted
-                var $medicationID = $(this).closest(".prescriptionRow").find(".medicationID");
-                $medicationID.val(item.id);
-            }).on('typeahead:autocompleted', function(event, item, data) {
+            // triggered when an item is selected from the dropdown list in autocompleted
+            var $medicationID = $(this).closest(".prescriptionRow").find(".medicationID");
+            $medicationID.val(item.id);
+        }).on('typeahead:autocompleted', function(event, item, data) {
                 // triggered when an item is tabbed to completion
                 $(this).trigger("typeahead:selected", item);
             }
         ).on("change", function(event) {
-                // triggered when text is entered that is not part of the autocomplete
-                var $medicationID = $(this).closest(".prescriptionRow").find(".medicationID");
-                $medicationID.val("");
+            // triggered when text is entered that is not part of the autocomplete
+            var $medicationID = $(this).closest(".prescriptionRow").find(".medicationID");
+            $medicationID.val("");
         });
     },
     setupNewPrescriptionRow: function(skipTypeahead) {

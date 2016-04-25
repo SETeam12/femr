@@ -2,6 +2,7 @@
 
 @import femr.ui.views.html.partials.medical.tabs.prescriptionRow
 
+
 <div class="controlWrap hidden" id="treatmentControl">
     <div class="form-group">
         <label for="assessment">Assessment</label>
@@ -15,13 +16,15 @@
         <label for="problem">Diagnosis</label>
         <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 problemWrap">
-                @for(problem <- problems) {
+               @for(problem <- problems) {
                     <div class="problem">
-                        <input type="text" class="form-control input-sm oldProblems" value="@problem.getName" readonly/>
+                        <input type="text" class="form-control input-sm oldProblems" value="@problem.getName" /> <!--TODO placeholder readonly , oldProblems->newProblems     -->
                     </div>
-                }
+                } <!-- this loop puts the list of existing problems into the form? -->
+
+<!-- TODO: delete, then re-insert all diagnosis -->
                 <div class="problem">
-                    <input name="problems[0].name" type="text" class="form-control input-sm newProblems"/>
+                    <input name="problems[0].name" type="text" class="form-control input-sm newProblems"/> <!-- s -->
                 </div>
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">

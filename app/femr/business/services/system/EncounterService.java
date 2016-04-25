@@ -216,24 +216,37 @@ public class EncounterService implements IEncounterService {
      * {@inheritDoc}
      */
     @Override
-    public ServiceResponse<List<ProblemItem>> createProblems(List<String> problemValues, int encounterId, int userId) {
+    public ServiceResponse<List<ProblemItem>> editProblems(List<String> problemValues, int encounterId, int userId) {
 
+//        System.out.printf("\neditProblems called here");
         ServiceResponse<List<ProblemItem>> response = new ServiceResponse<>();
+
+//        for(int i=0; i<problemValues.size(); ++i)
+//            System.out.printf("\nProblem Item %d: %s", i, problemValues.get(i).toString());
+
+        //TODO remove old db entries for this encounter to allow for insertion of the changed list
 
         //get the current tab field item
         ExpressionList<TabField> query = QueryProvider.getTabFieldQuery()
                 .where()
                 .eq("name", "problem");
 
-        try {
+//        System.out.printf("\nQuery: %s", query.toString());
 
+        try {
+//find field to fill?
             ITabField tabField = tabFieldRepository.findOne(query);
+            System.out.printf("\ntabField: %s", tabField.toString());
             List<IPatientEncounterTabField> patientEncounterTabFields = new ArrayList<>();
             DateTime dateTaken = dateUtils.getCurrentDateTime();
+            //populate tab fields
             for (String problemval : problemValues) {
-
+//                System.out.printf("\nproblemval: %s", problemval);
                 IPatientEncounterTabField patientEncounterTabField = dataModelMapper.createPatientEncounterTabField(tabField.getId(), userId, problemval, encounterId, dateTaken, null);
+//                System.out.printf("\npatientEncounterTabField: %s", patientEncounterTabField.toString());
                 patientEncounterTabFields.add(patientEncounterTabField);
+//                System.out.printf("\npatientEncounterTabFields (List): %s", patientEncounterTabFields.toString());
+
             }
             patientEncounterTabFieldRepository.createAll(patientEncounterTabFields);
         } catch (Exception ex) {
@@ -244,6 +257,35 @@ public class EncounterService implements IEncounterService {
 
         return response;
     }
+
+
+    public ServiceResponse<List<EncounterChangeItem>> addEncounterChanges(List<String> encounterChangeValues, int encounterId, int userId) //previously named createProblems
+    {
+        ServiceResponse<List<EncounterChangeItem>> response = new ServiceResponse<>();
+
+        //get the current tab field item
+        ExpressionList<TabField> query = QueryProvider.getTabFieldQuery()
+                .where()
+                .eq("name", "changes");
+
+        try {
+            ITabField tabField = tabFieldRepository.findOne(query);
+            List<IPatientEncounterTabField> patientEncounterTabFields = new ArrayList<>();
+            DateTime dateTaken = dateUtils.getCurrentDateTime();
+            //populate tab fields
+//            for (String encounterChangeVal : encounterChangeValues) {
+//                IPatientEncounterTabField patientEncounterTabField = dataModelMapper.createPatientEncounterTabField(tabField.getId(), userId, problemval, encounterId, dateTaken, null);
+//                patientEncounterTabFields.add(patientEncounterTabField);
+
+//            }
+            patientEncounterTabFieldRepository.createAll(patientEncounterTabFields);
+        } catch (Exception ex) {
+            response.addError("", ex.getMessage());
+        }
+
+        return response;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -424,7 +466,7 @@ public class EncounterService implements IEncounterService {
      * {@inheritDoc}
      */
     @Override
-    public ServiceResponse<List<ProblemItem>> retrieveProblemItems(int encounterId) {
+    public ServiceResponse<List<ProblemItem>> retrieveProblemItems(int encounterId) {   //does not do updates of ProblemItem Lists
         ServiceResponse<List<ProblemItem>> response = new ServiceResponse<>();
         List<ProblemItem> problemItems = new ArrayList<>();
         Query<PatientEncounterTabField> query = QueryProvider.getPatientEncounterTabFieldQuery()
@@ -441,10 +483,45 @@ public class EncounterService implements IEncounterService {
                 response.addError("", "bad query");
             } else {
                 for (IPatientEncounterTabField petf : patientEncounterTreatmentFields) {
-                    if (petf.getTabField() != null)
+                    if (petf.getTabField() != null) {
                         problemItems.add(itemModelMapper.createProblemItem(petf.getTabFieldValue()));
+                    }
                 }
+
                 response.setResponseObject(problemItems);
+            }
+        } catch (Exception ex) {
+            response.addError("", "error");
+        }
+
+        return response;
+    }
+
+    @Override
+    public ServiceResponse<List<EncounterChangeItem>> retrieveEncounterChangeItems(int encounterId, int userID) {
+        ServiceResponse<List<EncounterChangeItem>> response = new ServiceResponse<>();
+        List<EncounterChangeItem> encounterChangeItems = new ArrayList<>();
+        Query<PatientEncounterTabField> query = QueryProvider.getPatientEncounterTabFieldQuery()
+                .fetch("tabField")
+                .where()
+                .eq("patient_encounter_id", encounterId)
+                .eq("tabField.name", "encounterChangeItem")
+                .order()
+                .asc("date_taken");
+
+        try {
+            List<? extends IPatientEncounterTabField> patientEncounterTreatmentFields = patientEncounterTabFieldRepository.find(query);
+            if (patientEncounterTreatmentFields == null) {
+                response.addError("", "bad query");
+            } else {
+                for (IPatientEncounterTabField petf : patientEncounterTreatmentFields) {
+                    if (petf.getTabField() != null) {
+                        //CONFIGURATIONS ARE SCREWED UP
+                        //                       encounterChangeItems.add(itemModelMapper.createEncounterChangeItem(petf.getTabFieldValue(), encounterId, userID));
+                    }
+                }
+
+                response.setResponseObject(encounterChangeItems);
             }
         } catch (Exception ex) {
             response.addError("", "error");

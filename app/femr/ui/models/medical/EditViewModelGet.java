@@ -28,6 +28,8 @@ public class EditViewModelGet {
     private PatientEncounterItem patientEncounterItem;
     //List of problems for the patient
     private List<ProblemItem> problemItems;
+    //List of changes to the list of problems for the patient for an encounter
+    private List<EncounterChangeItem> encounterChangeItems;
     //List of prescriptions for the patient
     private List<PrescriptionItem> prescriptionItems;
     //photos for the medical tab
@@ -59,6 +61,13 @@ public class EditViewModelGet {
 
     public void setProblemItems(List<ProblemItem> problemItems) {
         this.problemItems = problemItems;
+//        System.out.print("\nEditViewModelGet's setProblemItems is called here");
+    }
+
+    public List<EncounterChangeItem> getEncounterChangeItems() {    return encounterChangeItems;    }
+
+    public void setEncounterChangeItems(List<EncounterChangeItem> encounterChangeItems) {
+        this.encounterChangeItems = encounterChangeItems;
     }
 
     public List<PrescriptionItem> getPrescriptionItems() {

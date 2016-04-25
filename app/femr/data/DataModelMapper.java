@@ -37,6 +37,8 @@ import java.util.List;
 public class DataModelMapper implements IDataModelMapper{
 
     private final Provider<IChiefComplaint> chiefComplaintProvider;
+    //  CONFIGURATIONS ARE SCREWED UP
+//    private final Provider<IEncounterChange> encounterChangeProvider;
     private final Provider<ILoginAttempt> loginAttemptProvider;
     private final Provider<IMedication> medicationProvider;
     private final Provider<IMedicationGeneric> medicationGenericProvider;
@@ -70,6 +72,8 @@ public class DataModelMapper implements IDataModelMapper{
 
     @Inject
     public DataModelMapper(Provider<IChiefComplaint> chiefComplaintProvider,
+                           //  CONFIGURATIONS ARE SCREWED UP
+     //                      Provider<IEncounterChange> encounterChangeProvider,
                            Provider<ILoginAttempt> loginAttemptProvider,
                            Provider<IMedication> medicationProvider,
                            Provider<IMedicationGeneric> medicationGenericProvider,
@@ -102,6 +106,8 @@ public class DataModelMapper implements IDataModelMapper{
                            Provider<IVital> vitalProvider) {
 
         this.chiefComplaintProvider = chiefComplaintProvider;
+        //  CONFIGURATIONS ARE SCREWED UP
+//        this.encounterChangeProvider = encounterChangeProvider;
         this.loginAttemptProvider = loginAttemptProvider;
         this.patientEncounterProvider = patientEncounterProvider;
         this.medicationProvider = medicationProvider;
@@ -152,6 +158,22 @@ public class DataModelMapper implements IDataModelMapper{
 
         return chiefComplaint;
     }
+
+    //  CONFIGURATIONS ARE SCREWED UP
+/*
+    public IEncounterChange createEncounterChange(String changes, int patientEncounterId, DateTime changeDate, Integer userID)
+    {
+        if(StringUtils.isNullOrWhiteSpace(changes))
+            return null;
+
+        IEncounterChange encounterChange = encounterChangeProvider.get();
+        encounterChange.setChanges(changes);
+        encounterChange.setPatientEncounter(Ebean.getReference(patientEncounterProvider.get().getClass(), patientEncounterId));
+        encounterChange.setUserID(userID);  //TODO Change to set a user object?
+
+        return encounterChange;
+    }
+*/
 
     /**
      * {@inheritDoc}
@@ -396,9 +418,14 @@ public class DataModelMapper implements IDataModelMapper{
         //provide a proxy patient for the encounter
         patientEncounter.setPatient(Ebean.getReference(patientProvider.get().getClass(), patientID));
         patientEncounter.setNurse(Ebean.getReference(userProvider.get().getClass(), userId));
+/*      TODO PLACEHOLDER FOR OLD CODE
         if (patientAgeClassificationId != null)
             patientEncounter.setPatientAgeClassification(Ebean.getReference(patientAgeClassificationProvider.get().getClass(), patientAgeClassificationId));
-        if (tripId != null)
+*/
+
+
+            if (tripId != null)
+
             patientEncounter.setMissionTrip(Ebean.getReference(missionTripProvider.get().getClass(), tripId));
 
         return patientEncounter;

@@ -36,6 +36,18 @@ public interface IDataModelMapper {
     IChiefComplaint createChiefComplaint(String value, int patientEncounterId, Integer sortOrder);
 
     /**
+     * Generate and provide an implementation of IEncounterChange.
+     *
+     * @param changes              the change itself, not null
+     * @param patientEncounterId id of the encounter that the change belongs to, not null
+     * @param changeDate          the date and time of the change to the encounter, not null
+     * @param userID                the id of the user that made the change to the encounter, not null
+     * @return an implementation of IChiefComplaint or null if processing fails
+     */
+//  CONFIGURATIONS ARE SCREWED UP
+//    IEncounterChange createEncounterChange(String changes, int patientEncounterId, DateTime changeDate, Integer userID);
+
+    /**
      * Creates a login attempt
      *
      * @param usernameValue the value that the device/person submitted to the server as a username, not null

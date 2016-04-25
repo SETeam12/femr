@@ -44,6 +44,8 @@ public class PatientEncounterItem {
     private String pharmacistFullName; //Andrew Display Username instead of Email Address Fix
     private Boolean screenedForDiabetes;
 
+    private List<EncounterChangeItem> encounterEditHistory;
+
     public PatientEncounterItem(){
         this.chiefComplaints = new ArrayList<>();
     }
@@ -162,4 +164,8 @@ public class PatientEncounterItem {
     public void setScreenedForDiabetes(Boolean screenedForDiabetes) {
         this.screenedForDiabetes = screenedForDiabetes;
     }
+
+    public List<EncounterChangeItem> getEncounterEditHistory()   {   return encounterEditHistory;    }
+
+    public void setEncounterEditHistory(List<EncounterChangeItem> encounterEditHistory)  {   this.encounterEditHistory = encounterEditHistory;   }
 }

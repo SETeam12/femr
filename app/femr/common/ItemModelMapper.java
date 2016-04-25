@@ -26,7 +26,9 @@ import femr.util.stringhelpers.StringUtils;
 import org.joda.time.DateTime;
 
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Calendar;
 
 /**
  * Responsible for creating item objects (common/models)
@@ -140,6 +142,7 @@ public class ItemModelMapper implements IItemModelMapper {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public PatientItem createPatientItem(int id,
                                                 String firstName,
@@ -180,11 +183,9 @@ public class ItemModelMapper implements IItemModelMapper {
         if (StringUtils.isNotNullOrWhiteSpace(sex))
             patientItem.setSex(sex);
         if (age != null) {
-
             patientItem.setAge(dateUtils.getAge(age));//age (int)
             patientItem.setBirth(age);//date of birth(date)
             patientItem.setFriendlyDateOfBirth(dateUtils.getFriendlyDate(age));
-
         }
         if (StringUtils.isNotNullOrWhiteSpace(pathToPatientPhoto) && photoId != null) {
 
@@ -346,6 +347,23 @@ public class ItemModelMapper implements IItemModelMapper {
 
         return problemItem;
     }
+
+    //  CONFIGURATIONS ARE SCREWED UP
+/*
+    public EncounterChangeItem createEncounterChangeItem(String changes, Integer encounterID, Integer userID){
+        if(StringUtils.isNullOrWhiteSpace(changes))
+            return null;
+
+        EncounterChangeItem encounterChangeItem = new EncounterChangeItem();
+
+        encounterChangeItem.setChanges(changes);
+        encounterChangeItem.setDateOfEdit(dateUtils.getCurrentDateTime());
+        encounterChangeItem.setEncounterID(encounterID);
+        encounterChangeItem.setUserID(userID);
+
+        return encounterChangeItem;
+    }
+*/
 
     /**
      * {@inheritDoc}

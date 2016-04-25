@@ -18,6 +18,7 @@
 */
 package femr.ui.models.medical;
 
+import femr.common.models.EncounterChangeItem;
 import femr.common.models.PrescriptionItem;
 import femr.common.models.ProblemItem;
 import femr.common.models.TabFieldItem;
@@ -30,6 +31,7 @@ public class EditViewModelPost {
     private List<TabFieldItem> tabFieldItems;
     private List<PrescriptionItem> prescriptions;
     private List<ProblemItem> problems;
+    private List<EncounterChangeItem> encounterChanges;
 
     //Photo stuff
     private List<Boolean> deleteRequested;
@@ -65,6 +67,7 @@ public class EditViewModelPost {
 
     public void setImageDescText(List<String> lst) { this.imageDescText = lst; }
 
+
     public int getId() {
         return id;
     }
@@ -95,5 +98,11 @@ public class EditViewModelPost {
 
     public void setProblems(List<ProblemItem> problems) {
         this.problems = problems;
+    }
+
+    public List<EncounterChangeItem> getEncounterChanges() {    return encounterChanges;    }
+
+    public void setEncounterChanges(List<EncounterChangeItem> encounterChanges) {
+        this.encounterChanges = encounterChanges;
     }
 }
